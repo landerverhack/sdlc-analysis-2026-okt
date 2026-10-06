@@ -1,0 +1,109 @@
+<h1 class="scribble mb-8 -rotate-1 text-4xl md:text-5xl">Shopping Basket</h1>
+
+@if (changeError(); as message) {
+  <div class="alert alert-error mb-8">
+    <span>{{ message }}</span>
+  </div>
+}
+
+@switch (shoppingBasket.state()) {
+  <!-- Loading -->
+  @case ('loading') {
+    <div class="card">
+      <div class="card-body space-y-3 p-8">
+        @for (placeholder of loadingPlaceholders; track placeholder) {
+          <div class="skeleton h-10 w-full"></div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Error -->
+  @case ('error') {
+    <div class="alert alert-error">
+      <div>
+        <h2 class="text-xl">Your Shopping Basket could not be loaded.</h2>
+        <p>{{ shoppingBasket.error() }}</p>
+      </div>
+      <button type="button" class="btn btn-sm" (click)="reload()">Try again</button>
+    </div>
+  }
+
+  <!-- Loaded -->
+  @default {
+    @if (shoppingBasket.isEmpty()) {
+      <div class="card tack mx-auto max-w-md rotate-1 bg-postit">
+        <div class="card-body items-center text-center">
+          <h2 class="card-title text-3xl">Your Shopping Basket is empty</h2>
+          <p class="opacity-70">Add a Game from the catalogue to get started.</p>
+          <a routerLink="/games" class="btn btn-primary btn-sm mt-2">Browse the Game catalogue</a>
+        </div>
+      </div>
+    } @else {
+      <div class="card tape">
+        <div class="card-body p-6 md:p-8">
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Game</th>
+                  <th class="text-right">Unit Price</th>
+                  <th class="text-center">Quantity</th>
+                  <th class="text-right">Line Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of shoppingBasket.lines(); track line.gameId) {
+                  <tr>
+                    <td>
+                      <a class="link text-xl" [routerLink]="['/games', line.gameId]">
+                        {{ line.gameName }}
+                      </a>
+                    </td>
+                    <td class="text-right">{{ line.unitPrice | money: line.currency }}</td>
+                    <td>
+                      <div class="flex items-center justify-center gap-3">
+                        <span class="font-display text-xl">{{ line.quantity }}</span>
+                        <button
+                          type="button"
+                          class="btn btn-xs w-8"
+                          title="Add one more copy of this Game"
+                          [disabled]="changingGameId() !== null"
+                          (click)="addOneMore(line)"
+                        >
+                          @if (changingGameId() === line.gameId) {
+                            <span class="spinner"></span>
+                          } @else {
+                            +
+                          }
+                        </button>
+                      </div>
+                    </td>
+                    <td class="text-right">{{ line.lineTotal | money: line.currency }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="3" class="text-right text-xl">Subtotal</th>
+                  <th class="text-right text-2xl text-marker">
+                    {{ shoppingBasket.subtotal() | money: shoppingBasket.currency() }}
+                  </th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <p class="mt-4 text-base opacity-60">
+            Any Discount and the Final Total are worked out at Checkout.
+          </p>
+
+          <div class="card-actions mt-6 items-center justify-end gap-3">
+            <a routerLink="/games" class="btn btn-ghost btn-sm">Keep browsing</a>
+            <a routerLink="/checkout" class="btn btn-primary h-12 px-6 text-xl">Proceed to Checkout</a>
+          </div>
+        </div>
+      </div>
+    }
+  }
+}

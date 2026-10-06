@@ -1,0 +1,118 @@
+@api = http://localhost:5038
+@initialPrice = 49.99
+@updatedPrice = 39.99
+@initialStock = 20
+@orderQuantity = 2
+
+### 1) Create customer for checkout flow
+# @name createCheckoutCustomer
+POST {{api}}/api/customers
+Content-Type: application/json
+
+{
+  "email": "checkout-{{$guid}}@demo.local",
+  "firstName": "Checkout",
+  "lastName": "Customer",
+  "phoneNumber": "+32000000001",
+  "address": {
+    "street": "Demo Street 1",
+    "city": "Ghent",
+    "state": "East Flanders",
+    "postalCode": "9000",
+    "country": "Belgium"
+  }
+}
+
+### 1b) Create customer for price-change basket flow
+# @name createPricingCustomer
+POST {{api}}/api/customers
+Content-Type: application/json
+
+{
+  "email": "pricing-{{$guid}}@demo.local",
+  "firstName": "Pricing",
+  "lastName": "Customer",
+  "phoneNumber": "+32000000002",
+  "address": {
+    "street": "Demo Street 2",
+    "city": "Ghent",
+    "state": "East Flanders",
+    "postalCode": "9000",
+    "country": "Belgium"
+  }
+}
+
+### 2) Create publisher
+# @name createPublisher
+POST {{api}}/api/publishers
+Content-Type: application/json
+
+{
+  "name": "Demo Publisher {{$guid}}",
+  "country": "Belgium",
+  "website": "https://demo.publisher.local"
+}
+
+### 2b) Create game
+# @name createGame
+POST {{api}}/api/games
+Content-Type: application/json
+
+{
+  "title": "Demo Game {{$guid}}",
+  "description": "Game used to validate microservice interactions.",
+  "price": {{initialPrice}},
+  "currency": "EUR",
+  "stockQuantity": {{initialStock}},
+  "publisherId": "{{createPublisher.response.body.$.id}}"
+}
+
+### 3) Add game to checkout customer's basket
+# @name addToBasketCheckoutCustomer
+POST {{api}}/api/baskets/{{createCheckoutCustomer.response.body.$.id}}/items
+Content-Type: application/json
+
+{
+  "gameId": "{{createGame.response.body.$.id}}",
+  "quantity": {{orderQuantity}}
+}
+
+### 3b) Checkout basket to publish OrderPlaced event
+# @name checkoutBasket
+POST {{api}}/api/baskets/{{createCheckoutCustomer.response.body.$.id}}/checkout
+
+### 4) Verify stock reduction in Game (OrderPlaced -> Game)
+# Expected stock: initialStock - orderQuantity (= 18 by default)
+# @name getGameAfterCheckout
+GET {{api}}/api/games/{{createGame.response.body.$.id}}
+
+### 5) Prepare active basket for price-change verification
+# @name addToBasketPricingCustomer
+POST {{api}}/api/baskets/{{createPricingCustomer.response.body.$.id}}/items
+Content-Type: application/json
+
+{
+  "gameId": "{{createGame.response.body.$.id}}",
+  "quantity": 1
+}
+
+### 5b) Read basket before price update (should show initialPrice)
+# @name getPricingBasketBeforeUpdate
+GET {{api}}/api/baskets/{{createPricingCustomer.response.body.$.id}}
+
+### 5c) Update game price in Game
+# @name updateGamePrice
+PUT {{api}}/api/games/{{createGame.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "title": "Demo Game Updated",
+  "description": "Updated price for integration event validation.",
+  "price": {{updatedPrice}},
+  "currency": "EUR",
+  "publisherId": "{{createPublisher.response.body.$.id}}"
+}
+
+### 5d) Verify basket repricing
+# @name getPricingBasketAfterUpdate
+GET {{api}}/api/baskets/{{createPricingCustomer.response.body.$.id}}

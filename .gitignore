@@ -1,0 +1,35 @@
+# ---- .NET ----
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userprefs
+artifacts/
+
+# ---- Visual Studio / Rider / VS Code ----
+.vs/
+.idea/
+*.swp
+# .vscode is intentionally NOT ignored: it carries shared workspace settings.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# ---- SQLite (the demo database is recreated on startup) ----
+*.db
+*.db-shm
+*.db-wal
+
+# ---- Node / Angular (frontend arrives later) ----
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+
+# ---- Trainer material must never live in this repo ----
+# The product-owner brief is kept OUTSIDE the workspace so that the coding
+# agent cannot read it during the interview exercise. See docs/README.md.
+*.trainer.md
+trainer-notes/

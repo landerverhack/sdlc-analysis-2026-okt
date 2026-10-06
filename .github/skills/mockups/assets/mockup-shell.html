@@ -1,0 +1,114 @@
+<!doctype html>
+<!--
+  ============================================================================
+  OPTION <A|B|C> — <name of the idea>
+
+  The idea in one sentence: <what this option believes about the problem>
+
+  Differs from the others by: <the axis this option sits at one end of>
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameStore — <component> — Option <A></title>
+
+  <!-- The design system's fonts, exactly as src/Frontend/src/index.html loads them. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap">
+
+  <!-- Tailwind's browser build, the same minor version the client builds with, so this
+       file opens with no build step. It compiles the text/tailwindcss block below. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3"></script>
+
+  <style type="text/tailwindcss">
+    /* Explicit, as in src/styles.css. Without it the browser build only adds Tailwind
+       itself when the block never mentions an import, and the design system's own
+       comments do — so the utilities would silently disappear. */
+    @import "tailwindcss";
+
+    /* ==== DESIGN SYSTEM ==================================================================
+       Paste src/Frontend/src/design-system.css here, verbatim and in full, when this file
+       is created. It is a snapshot: the file in src/ remains the source of truth.
+       ================================================================================== */
+
+
+
+    /* ==== PROPOSED ADDITIONS =============================================================
+       Only if this option needs a component or token the design system does not have.
+       Each one is a proposal, not a decision: name it in the comparison, because choosing
+       this option means adding it to design-system.css. Leave empty otherwise.
+       ================================================================================== */
+
+  </style>
+
+  <style>
+    /* Mockup chrome only — not part of the design being reviewed. */
+    .mock-state { max-width: 64rem; margin: 0 auto 4rem; }
+    .mock-state > h2 {
+      font: 600 0.75rem/1 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280;
+      padding-bottom: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #d1d5db;
+    }
+    .mock-state > h2 span { text-transform: none; letter-spacing: 0; color: #9ca3af; font-weight: 400; }
+    .mock-header, .mock-header h1 { font-family: ui-sans-serif, system-ui, sans-serif; }
+  </style>
+</head>
+<body class="p-8">
+
+  <header class="mock-header mx-auto mb-12 max-w-5xl">
+    <p class="text-xs uppercase tracking-widest text-gray-500">GameStore mockup</p>
+    <h1 class="text-2xl font-semibold">&lt;Component&gt; — Option &lt;A&gt;: &lt;idea&gt;</h1>
+    <p class="mt-1 text-sm text-gray-600">&lt;One sentence on what this option is betting on.&gt;</p>
+  </header>
+
+  <!--
+    Every state gets its own section. Do not delete the awkward ones — they are the
+    reason this file exists. Add more where the component has them.
+
+    Build with the design system's classes (btn, card, alert, badge, table, link,
+    skeleton, spinner), its decorations (tape, tack, scribble) and Tailwind utilities
+    that use its tokens (bg-postit, text-marker, rounded-wobbly, shadow-hard, ...).
+    No raw hex colours and no one-off styles: if it cannot be built from the design
+    system, it goes under PROPOSED ADDITIONS above.
+  -->
+
+  <section class="mock-state">
+    <h2>Populated <span>— the ordinary case</span></h2>
+
+    <!-- Real content. Real board game names, real prices: 49,99 € not $XX.XX -->
+
+  </section>
+
+  <section class="mock-state">
+    <h2>Empty <span>— nothing to show yet</span></h2>
+
+    <!-- What does the Customer see, and what are they invited to do about it? -->
+
+  </section>
+
+  <section class="mock-state">
+    <h2>Loading <span>— waiting on the API</span></h2>
+
+    <!-- Skeleton or spinner. Say in a comment what it is waiting for. -->
+
+  </section>
+
+  <section class="mock-state">
+    <h2>Error <span>— the request failed</span></h2>
+
+    <!-- Can the Customer retry? Is the rest of the page still usable? -->
+
+  </section>
+
+  <section class="mock-state">
+    <h2>Edges <span>— long names, large numbers, single item, zero balance</span></h2>
+
+    <!-- The states that break layouts. Include at least the ones that apply here. -->
+
+  </section>
+
+</body>
+</html>

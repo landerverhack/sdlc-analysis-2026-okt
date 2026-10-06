@@ -1,0 +1,2 @@
+This list of use cases is not complete, but it provides an overview of the main use cases implemented 
+in the GameStore application. Each use case represents a specific functionality or feature of the application.

@@ -1,0 +1,40 @@
+<div class="min-h-screen">
+  <header class="border-b-[3px] border-dashed border-pencil">
+    <div class="flex items-center mx-auto max-w-5xl flex-wrap gap-4 px-4 py-4">
+      <div class="flex-1">
+        <a
+          routerLink="/games"
+          class="tape inline-block -rotate-2 border-[3px] border-pencil bg-postit px-4 py-1 font-display text-2xl shadow-hard transition-transform duration-100 rounded-wobbly hover:rotate-1 md:text-3xl"
+        >
+          GameStore
+        </a>
+      </div>
+
+      <nav class="flex flex-wrap items-center justify-end gap-1">
+        <a routerLink="/games" routerLinkActive="btn-active" class="btn btn-ghost btn-sm">Games</a>
+
+        <a
+          routerLink="/shopping-basket"
+          routerLinkActive="btn-active"
+          class="btn btn-ghost btn-sm"
+        >
+          Shopping Basket
+          @if (shoppingBasket.gameCount() > 0) {
+            <span class="badge rotate-6">{{ shoppingBasket.gameCount() }}</span>
+          }
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 py-10">
+    <router-outlet />
+  </main>
+
+  <footer class="mx-auto max-w-5xl px-4 pb-10">
+    <p class="inline-block rotate-1 border-2 border-dashed border-pencil/40 px-3 py-1 text-base opacity-70 rounded-wobbly">
+      Shopping as Customer {{ shoppingBasket.basket().customerId }}. There is no
+      authentication in this demo.
+    </p>
+  </footer>
+</div>

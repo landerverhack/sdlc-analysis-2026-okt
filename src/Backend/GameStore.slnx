@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/GameStore.Application/GameStore.Application.csproj" Id="8018649e-8cc3-4d39-8452-d4cc07d72e0a" />
+  <Project Path="src/GameStore.Domain/GameStore.Domain.csproj" Id="1c6ae1d6-457f-4ae8-ac26-4f6a8fff4b25" />
+  <Project Path="src/GameStore.Infrastructure/GameStore.Infrastructure.csproj" Id="41e12fb1-d9c2-4e4a-97c9-a1e0c08199a7" />
+  <Project Path="src/GameStore.Presentation/GameStore.Presentation.csproj" Id="d90bb6b5-a788-4744-850c-a21c904dd3d5" />
+</Solution>

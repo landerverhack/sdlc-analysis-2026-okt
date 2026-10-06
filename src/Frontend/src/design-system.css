@@ -1,0 +1,400 @@
+/*
+ * GameStore design system: hand-drawn.
+ *
+ * The single source of truth for how the client looks, and for how every mockup looks.
+ * It is written in Tailwind syntax with no @import, so it can be used in two places:
+ *
+ *   - the app build: src/styles.css imports it after Tailwind;
+ *   - a mockup: the mockups skill pastes this file into a <style type="text/tailwindcss">
+ *     block, where the Tailwind browser build compiles it with no build step.
+ *
+ * It has three parts: theme tokens (fonts, colours, radii, shadows), a few decorations as
+ * utilities (tape, tack, scribble), and the component classes the templates use (btn,
+ * card, alert, badge, table, link, skeleton, spinner). Components sit in the components
+ * layer, so any Tailwind utility written next to them in a template wins.
+ */
+
+@theme {
+  --font-sans: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-display: "Kalam", "Patrick Hand", cursive;
+
+  --color-pencil: #2d2d2d;
+  --color-paper: #fdfbf7;
+  --color-erased: #e5e0d8;
+  --color-marker: #ff4d4d;
+  --color-ballpoint: #2d5da1;
+  --color-postit: #fff9c4;
+
+  /* Irregular ellipses: no container in this design has a straight edge. */
+  --radius-wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-wobbly-md: 15px 255px 15px 225px / 225px 15px 255px 15px;
+  --radius-blob: 60% 40% 55% 45% / 45% 55% 40% 60%;
+
+  /* Hard offset shadows only; never a blur. */
+  --shadow-hard-sm: 2px 2px 0 0 #2d2d2d;
+  --shadow-hard: 4px 4px 0 0 #2d2d2d;
+  --shadow-hard-lg: 8px 8px 0 0 #2d2d2d;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    background-image: radial-gradient(var(--color-erased) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--color-pencil);
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+}
+
+/* ---- Decorations ---------------------------------------------------------------- */
+
+/* A strip of translucent tape holding the element to the page. */
+@utility tape {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    z-index: 10;
+    width: 6rem;
+    height: 1.5rem;
+    translate: -50% 0;
+    rotate: -3deg;
+    background: rgb(45 45 45 / 0.12);
+    border: 1px solid rgb(45 45 45 / 0.08);
+    pointer-events: none;
+  }
+}
+
+/* A red thumbtack pinned through the top of the element. */
+@utility tack {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.6rem;
+    left: 50%;
+    z-index: 10;
+    width: 1.25rem;
+    height: 1.25rem;
+    translate: -50% 0;
+    border: 2px solid var(--color-pencil);
+    border-radius: 9999px;
+    background: var(--color-marker);
+    box-shadow: var(--shadow-hard-sm);
+    pointer-events: none;
+  }
+}
+
+/* A marker-pen underline for page headings. */
+@utility scribble {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--color-marker);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.35em;
+}
+
+/* ---- Components ----------------------------------------------------------------- */
+
+@layer components {
+  /*
+   * Buttons. The default is a secondary, muted pencil sketch; btn-primary is white paper
+   * that fills with correction-marker red; btn-ghost is a word scribbled on the page.
+   * Patrick Hand reads small, so the sizes are larger than a typical button.
+   */
+  .btn {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding-inline: 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--color-pencil);
+    background-color: var(--color-erased);
+    border: 3px solid var(--color-pencil);
+    border-radius: var(--radius-wobbly);
+    box-shadow: var(--shadow-hard);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      translate 100ms,
+      rotate 100ms,
+      box-shadow 100ms,
+      background-color 100ms,
+      color 100ms;
+  }
+
+  .btn-sm {
+    height: 2.5rem;
+    padding-inline: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .btn-xs {
+    height: 2rem;
+    padding-inline: 0.5rem;
+    font-size: 1rem;
+    border-width: 2px;
+    box-shadow: var(--shadow-hard-sm);
+  }
+
+  .btn-primary {
+    background-color: #ffffff;
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .btn:hover {
+    color: #ffffff;
+    background-color: var(--color-ballpoint);
+    box-shadow: var(--shadow-hard-sm);
+    translate: 2px 2px;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-marker);
+  }
+
+  /* Pressed flat against the page. */
+  .btn:active {
+    box-shadow: none;
+    translate: 4px 4px;
+  }
+
+  .btn-ghost:hover,
+  .btn-ghost:active {
+    color: var(--color-pencil);
+    background-color: transparent;
+    border-color: var(--color-pencil);
+    border-style: dashed;
+    box-shadow: none;
+    translate: none;
+    rotate: -1deg;
+  }
+
+  /* The navigation link for the current screen. */
+  .btn-active {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--color-marker);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+  }
+
+  .btn:focus-visible {
+    outline: 3px dashed var(--color-ballpoint);
+    outline-offset: 3px;
+  }
+
+  .btn:disabled {
+    color: var(--color-pencil);
+    background-color: var(--color-erased);
+    border-color: var(--color-pencil);
+    border-style: solid;
+    box-shadow: none;
+    translate: none;
+    rotate: none;
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Cards: white paper cut out with scissors and laid on the desk. */
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border: 2px solid var(--color-pencil);
+    border-radius: var(--radius-wobbly-md);
+    box-shadow: var(--shadow-hard);
+    transition:
+      rotate 100ms,
+      box-shadow 100ms;
+  }
+
+  /* An image at the top of a card follows the card's wobbly corners. */
+  .card > figure:first-child {
+    overflow: hidden;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+  }
+
+  .card-body {
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Alerts are notes stuck onto the page: text first, an optional action after it. */
+  .alert {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    background-color: #ffffff;
+    border: 2px solid var(--color-pencil);
+    border-radius: var(--radius-wobbly);
+    box-shadow: var(--shadow-hard);
+  }
+
+  .alert-success {
+    background-color: var(--color-postit);
+    rotate: -0.5deg;
+  }
+
+  .alert-warning {
+    background-color: var(--color-postit);
+    border-style: dashed;
+  }
+
+  .alert-error {
+    border: 3px dashed var(--color-marker);
+    box-shadow: 4px 4px 0 0 var(--color-marker);
+  }
+
+  /* A count in a blob of red marker. */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: 0.35rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #ffffff;
+    background-color: var(--color-marker);
+    border: 2px solid var(--color-pencil);
+    border-radius: var(--radius-blob);
+    box-shadow: var(--shadow-hard-sm);
+  }
+
+  /* Tables are ruled in pencil, with erased dashes between rows. */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.125rem;
+    text-align: left;
+  }
+
+  .table :where(th, td) {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+  }
+
+  .table :where(thead, tfoot) {
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+
+  .table thead tr {
+    border-bottom: 3px solid var(--color-pencil);
+  }
+
+  .table tbody tr:not(:last-child) {
+    border-bottom: 2px dashed var(--color-erased);
+  }
+
+  .table tfoot tr {
+    border-top: 3px solid var(--color-pencil);
+  }
+
+  /* Links inside content are underlined in blue ballpoint. */
+  .link {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--color-ballpoint);
+    text-underline-offset: 0.25em;
+    cursor: pointer;
+  }
+
+  .link:hover {
+    color: var(--color-ballpoint);
+  }
+
+  /* Loading placeholders are smudged pencil shading. */
+  .skeleton {
+    background-color: var(--color-erased);
+    border-radius: var(--radius-wobbly);
+    animation: skeleton-smudge 1.5s ease-in-out infinite;
+  }
+
+  /* A pencil circle going round; sized by the font size of the text around it. */
+  .spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--radius-blob);
+    animation: spinner-turn 0.7s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+
+    .spinner {
+      animation-duration: 2s;
+    }
+  }
+}
+
+@keyframes skeleton-smudge {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spinner-turn {
+  to {
+    rotate: 360deg;
+  }
+}
