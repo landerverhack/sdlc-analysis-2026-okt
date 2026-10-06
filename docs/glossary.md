@@ -41,6 +41,7 @@ style preference.
 
 | Term | Meaning | Code home |
 | --- | --- | --- |
+| **Wishlist** | The Games a Customer has saved for later consideration, without quantities, stock reservation or a commitment to buy. One persistent Wishlist per Customer; each Game appears at most once. Separate from the Shopping Basket; adding to the Shopping Basket or Checkout does not remove saved Games. | Domain `Entities/Wishlist.cs` (planned; not implemented) |
 | **Shopping Basket** | The Games a Customer intends to buy, before they buy them. Mutable, belongs to exactly one Customer, emptied on checkout. Prices in a Basket are live — they follow the Game's current price. | `Entities/ShoppingBasket.cs` |
 | **Basket Line** | One Game and a quantity within a Shopping Basket. Adding a Game already present increases the quantity rather than adding a second line. | `Entities/BasketLine.cs` |
 | **Checkout** | The act of turning a Shopping Basket into an Order. Prices, discount and total are fixed at this moment; the Basket is cleared. | `UseCases/Checkout.cs` |

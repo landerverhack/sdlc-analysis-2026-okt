@@ -1,0 +1,654 @@
+<!doctype html>
+<!--
+  ============================================================================
+  OPTION A — Compact list (restrained)
+
+  The idea in one sentence: scan prices and act directly on each saved Game.
+
+  Differs from the others by: row-level information and actions instead of cards or selection.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameStore — Wishlist — Option A</title>
+
+  <!-- The design system's fonts, exactly as src/Frontend/src/index.html loads them. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Patrick+Hand&display=swap">
+
+  <!-- Tailwind's browser build, the same minor version the client builds with, so this
+       file opens with no build step. It compiles the text/tailwindcss block below. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3"></script>
+
+  <style type="text/tailwindcss">
+    /* Explicit, as in src/styles.css. Without it the browser build only adds Tailwind
+       itself when the block never mentions an import, and the design system's own
+       comments do — so the utilities would silently disappear. */
+    @import "tailwindcss";
+
+    /* ==== DESIGN SYSTEM ==================================================================
+       Paste src/Frontend/src/design-system.css here, verbatim and in full, when this file
+       is created. It is a snapshot: the file in src/ remains the source of truth.
+       ================================================================================== */
+
+
+
+/*
+ * GameStore design system: hand-drawn.
+ *
+ * The single source of truth for how the client looks, and for how every mockup looks.
+ * It is written in Tailwind syntax with no @import, so it can be used in two places:
+ *
+ *   - the app build: src/styles.css imports it after Tailwind;
+ *   - a mockup: the mockups skill pastes this file into a <style type="text/tailwindcss">
+ *     block, where the Tailwind browser build compiles it with no build step.
+ *
+ * It has three parts: theme tokens (fonts, colours, radii, shadows), a few decorations as
+ * utilities (tape, tack, scribble), and the component classes the templates use (btn,
+ * card, alert, badge, table, link, skeleton, spinner). Components sit in the components
+ * layer, so any Tailwind utility written next to them in a template wins.
+ */
+
+@theme {
+  --font-sans: "Patrick Hand", "Comic Sans MS", cursive;
+  --font-display: "Kalam", "Patrick Hand", cursive;
+
+  --color-pencil: #2d2d2d;
+  --color-paper: #fdfbf7;
+  --color-erased: #e5e0d8;
+  --color-marker: #ff4d4d;
+  --color-ballpoint: #2d5da1;
+  --color-postit: #fff9c4;
+
+  /* Irregular ellipses: no container in this design has a straight edge. */
+  --radius-wobbly: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --radius-wobbly-md: 15px 255px 15px 225px / 225px 15px 255px 15px;
+  --radius-blob: 60% 40% 55% 45% / 45% 55% 40% 60%;
+
+  /* Hard offset shadows only; never a blur. */
+  --shadow-hard-sm: 2px 2px 0 0 #2d2d2d;
+  --shadow-hard: 4px 4px 0 0 #2d2d2d;
+  --shadow-hard-lg: 8px 8px 0 0 #2d2d2d;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    background-image: radial-gradient(var(--color-erased) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--color-pencil);
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+}
+
+/* ---- Decorations ---------------------------------------------------------------- */
+
+/* A strip of translucent tape holding the element to the page. */
+@utility tape {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    z-index: 10;
+    width: 6rem;
+    height: 1.5rem;
+    translate: -50% 0;
+    rotate: -3deg;
+    background: rgb(45 45 45 / 0.12);
+    border: 1px solid rgb(45 45 45 / 0.08);
+    pointer-events: none;
+  }
+}
+
+/* A red thumbtack pinned through the top of the element. */
+@utility tack {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.6rem;
+    left: 50%;
+    z-index: 10;
+    width: 1.25rem;
+    height: 1.25rem;
+    translate: -50% 0;
+    border: 2px solid var(--color-pencil);
+    border-radius: 9999px;
+    background: var(--color-marker);
+    box-shadow: var(--shadow-hard-sm);
+    pointer-events: none;
+  }
+}
+
+/* A marker-pen underline for page headings. */
+@utility scribble {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--color-marker);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.35em;
+}
+
+/* ---- Components ----------------------------------------------------------------- */
+
+@layer components {
+  /*
+   * Buttons. The default is a secondary, muted pencil sketch; btn-primary is white paper
+   * that fills with correction-marker red; btn-ghost is a word scribbled on the page.
+   * Patrick Hand reads small, so the sizes are larger than a typical button.
+   */
+  .btn {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding-inline: 1.25rem;
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--color-pencil);
+    background-color: var(--color-erased);
+    border: 3px solid var(--color-pencil);
+    border-radius: var(--radius-wobbly);
+    box-shadow: var(--shadow-hard);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      translate 100ms,
+      rotate 100ms,
+      box-shadow 100ms,
+      background-color 100ms,
+      color 100ms;
+  }
+
+  .btn-sm {
+    height: 2.5rem;
+    padding-inline: 1rem;
+    font-size: 1.125rem;
+  }
+
+  .btn-xs {
+    height: 2rem;
+    padding-inline: 0.5rem;
+    font-size: 1rem;
+    border-width: 2px;
+    box-shadow: var(--shadow-hard-sm);
+  }
+
+  .btn-primary {
+    background-color: #ffffff;
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  .btn:hover {
+    color: #ffffff;
+    background-color: var(--color-ballpoint);
+    box-shadow: var(--shadow-hard-sm);
+    translate: 2px 2px;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-marker);
+  }
+
+  /* Pressed flat against the page. */
+  .btn:active {
+    box-shadow: none;
+    translate: 4px 4px;
+  }
+
+  .btn-ghost:hover,
+  .btn-ghost:active {
+    color: var(--color-pencil);
+    background-color: transparent;
+    border-color: var(--color-pencil);
+    border-style: dashed;
+    box-shadow: none;
+    translate: none;
+    rotate: -1deg;
+  }
+
+  /* The navigation link for the current screen. */
+  .btn-active {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--color-marker);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+  }
+
+  .btn:focus-visible {
+    outline: 3px dashed var(--color-ballpoint);
+    outline-offset: 3px;
+  }
+
+  .btn:disabled {
+    color: var(--color-pencil);
+    background-color: var(--color-erased);
+    border-color: var(--color-pencil);
+    border-style: solid;
+    box-shadow: none;
+    translate: none;
+    rotate: none;
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* Cards: white paper cut out with scissors and laid on the desk. */
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border: 2px solid var(--color-pencil);
+    border-radius: var(--radius-wobbly-md);
+    box-shadow: var(--shadow-hard);
+    transition:
+      rotate 100ms,
+      box-shadow 100ms;
+  }
+
+  /* An image at the top of a card follows the card's wobbly corners. */
+  .card > figure:first-child {
+    overflow: hidden;
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+  }
+
+  .card-body {
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem;
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Alerts are notes stuck onto the page: text first, an optional action after it. */
+  .alert {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    background-color: #ffffff;
+    border: 2px solid var(--color-pencil);
+    border-radius: var(--radius-wobbly);
+    box-shadow: var(--shadow-hard);
+  }
+
+  .alert-success {
+    background-color: var(--color-postit);
+    rotate: -0.5deg;
+  }
+
+  .alert-warning {
+    background-color: var(--color-postit);
+    border-style: dashed;
+  }
+
+  .alert-error {
+    border: 3px dashed var(--color-marker);
+    box-shadow: 4px 4px 0 0 var(--color-marker);
+  }
+
+  /* A count in a blob of red marker. */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding-inline: 0.35rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #ffffff;
+    background-color: var(--color-marker);
+    border: 2px solid var(--color-pencil);
+    border-radius: var(--radius-blob);
+    box-shadow: var(--shadow-hard-sm);
+  }
+
+  /* Tables are ruled in pencil, with erased dashes between rows. */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.125rem;
+    text-align: left;
+  }
+
+  .table :where(th, td) {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+  }
+
+  .table :where(thead, tfoot) {
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+
+  .table thead tr {
+    border-bottom: 3px solid var(--color-pencil);
+  }
+
+  .table tbody tr:not(:last-child) {
+    border-bottom: 2px dashed var(--color-erased);
+  }
+
+  .table tfoot tr {
+    border-top: 3px solid var(--color-pencil);
+  }
+
+  /* Links inside content are underlined in blue ballpoint. */
+  .link {
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--color-ballpoint);
+    text-underline-offset: 0.25em;
+    cursor: pointer;
+  }
+
+  .link:hover {
+    color: var(--color-ballpoint);
+  }
+
+  /* Loading placeholders are smudged pencil shading. */
+  .skeleton {
+    background-color: var(--color-erased);
+    border-radius: var(--radius-wobbly);
+    animation: skeleton-smudge 1.5s ease-in-out infinite;
+  }
+
+  /* A pencil circle going round; sized by the font size of the text around it. */
+  .spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: var(--radius-blob);
+    animation: spinner-turn 0.7s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      animation: none;
+    }
+
+    .spinner {
+      animation-duration: 2s;
+    }
+  }
+}
+
+@keyframes skeleton-smudge {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spinner-turn {
+  to {
+    rotate: 360deg;
+  }
+}
+
+    /* ==== PROPOSED ADDITIONS =============================================================
+       Only if this option needs a component or token the design system does not have.
+       Each one is a proposal, not a decision: name it in the comparison, because choosing
+       this option means adding it to design-system.css. Leave empty otherwise.
+       ================================================================================== */
+
+  </style>
+
+  <style>
+    /* Mockup chrome only — not part of the design being reviewed. */
+    .mock-state { max-width: 64rem; margin: 0 auto 4rem; }
+    .mock-state > h2 {
+      font: 600 0.75rem/1 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280;
+      padding-bottom: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid #d1d5db;
+    }
+    .mock-state > h2 span { text-transform: none; letter-spacing: 0; color: #9ca3af; font-weight: 400; }
+    .mock-header, .mock-header h1 { font-family: ui-sans-serif, system-ui, sans-serif; }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+<!-- MOCKUP: A | Compact list | Scan current prices and act directly on each saved Game. -->
+<header class="mock-header mx-auto mb-10 max-w-5xl">
+  <p class="text-sm text-pencil">GameStore mockup</p>
+  <h1 class="text-2xl">Wishlist / A: Compact list</h1>
+  <p>Restrained option. Each Game and its actions share one row.</p>
+</header>
+<main class="mx-auto max-w-5xl space-y-14">
+  <section class="mock-state">
+    <h2>Populated</h2>
+    <nav aria-label="Main navigation" class="flex flex-wrap items-center gap-2 border-b-2 border-dashed border-pencil pb-4">
+      <a href="#catalogue" class="btn btn-ghost">Catalogue</a>
+      <a href="#wishlist" class="btn btn-ghost btn-active" aria-current="page">Wishlist <span class="badge" data-count>3</span></a>
+      <a href="#basket" class="btn btn-ghost"><i data-lucide="shopping-basket" class="size-5" aria-hidden="true"></i>Shopping Basket <span class="badge" data-basket>0</span></a>
+    </nav>
+    <div id="wishlist" class="my-6 flex flex-wrap items-center justify-between gap-3"><h1 class="scribble text-3xl">Wishlist</h1><p>3 Games / newest saves first</p></div>
+    <p class="sr-only" role="status" data-feedback></p>
+    <div class="divide-y-2 divide-dashed divide-erased" data-games>
+      <article class="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-4 py-5 md:grid-cols-[5rem_minmax(0,1fr)_auto]" data-game="Wingspan">
+        <a href="#details" class="rounded-wobbly focus-visible:outline-ballpoint"><img alt="Wingspan Game box" class="h-24 w-20 object-contain" data-image="wingspan"></a>
+        <div class="min-w-0"><a href="#details" class="link inline-flex min-h-12 items-center font-display text-xl">Wingspan</a><p class="text-2xl">49,99 €</p><p>Stock Quantity: 12</p></div>
+        <div class="col-span-2 flex flex-wrap gap-3 md:col-span-1"><button class="btn btn-primary" data-add><i data-lucide="shopping-basket" class="size-5" aria-hidden="true"></i>Add to Shopping Basket</button><button class="btn w-12 px-0" data-remove aria-label="Remove Wingspan from Wishlist" title="Remove from Wishlist"><i data-lucide="trash-2" class="size-5" aria-hidden="true"></i></button></div>
+      </article>
+      <article class="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-4 py-5 md:grid-cols-[5rem_minmax(0,1fr)_auto]" data-game="Brass: Birmingham">
+        <a href="#details" class="rounded-wobbly"><img alt="Brass: Birmingham Game box" class="h-24 w-20 object-contain" data-image="brass"></a>
+        <div class="min-w-0"><a href="#details" class="link inline-flex min-h-12 items-center font-display text-xl">Brass: Birmingham</a><p class="text-2xl">74,99 €</p><p class="text-marker">Out of stock / Stock Quantity: 0</p></div>
+        <div class="col-span-2 flex flex-wrap gap-3 md:col-span-1"><button class="btn btn-primary" disabled><i data-lucide="shopping-basket" class="size-5" aria-hidden="true"></i>Add to Shopping Basket</button><button class="btn w-12 px-0" data-remove aria-label="Remove Brass: Birmingham from Wishlist" title="Remove from Wishlist"><i data-lucide="trash-2" class="size-5" aria-hidden="true"></i></button></div>
+      </article>
+      <article class="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-4 py-5 md:grid-cols-[5rem_minmax(0,1fr)_auto]" data-game="Spirit Island">
+        <a href="#details"><img alt="Spirit Island Game box" class="h-24 w-20 object-contain" data-image="spirit"></a>
+        <div class="min-w-0"><a href="#details" class="link inline-flex min-h-12 items-center font-display text-xl">Spirit Island</a><p class="text-2xl">79,99 USD</p><p>Stock Quantity: 8</p></div>
+        <div class="col-span-2 flex flex-wrap gap-3 md:col-span-1"><button class="btn btn-primary" data-add><i data-lucide="shopping-basket" class="size-5" aria-hidden="true"></i>Add to Shopping Basket</button><button class="btn w-12 px-0" data-remove aria-label="Remove Spirit Island from Wishlist" title="Remove from Wishlist"><i data-lucide="trash-2" class="size-5" aria-hidden="true"></i></button></div>
+      </article>
+    </div>
+    <div id="basket" class="alert alert-success mt-5 hidden" role="status" data-basket-feedback></div>
+  </section>
+  <section class="mock-state"><h2>Empty</h2><h1 class="mb-6 text-3xl">Wishlist</h1><div class="border-y-2 border-dashed border-erased py-10"><i data-lucide="heart" class="mb-4 size-10 text-marker" aria-hidden="true"></i><h3 class="text-2xl">Your Wishlist is empty</h3><a href="#catalogue" class="btn btn-primary mt-5"><i data-lucide="arrow-right" class="size-5" aria-hidden="true"></i>Browse Catalogue</a></div></section>
+  <section class="mock-state"><h2>Loading</h2><h1 class="mb-6 text-3xl">Wishlist</h1><div aria-busy="true" aria-label="Loading Wishlist" class="space-y-5"><div class="flex items-center gap-4"><div class="skeleton h-24 w-20"></div><div class="flex-1 space-y-3"><div class="skeleton h-6 w-2/3"></div><div class="skeleton h-6 w-24"></div></div></div><div class="flex items-center gap-4"><div class="skeleton h-24 w-20"></div><div class="flex-1 space-y-3"><div class="skeleton h-6 w-1/2"></div><div class="skeleton h-6 w-24"></div></div></div><p role="status"><span class="spinner" aria-hidden="true"></span> Loading Wishlist…</p></div><!-- Waiting for saved Games and live catalogue prices; never show an empty state while pending. --></section>
+  <section class="mock-state"><h2>Error / failed load and failed changes</h2><h1 class="mb-6 text-3xl">Wishlist</h1><div class="alert alert-error" role="alert"><p>Wishlist could not be loaded.</p><button class="btn" data-retry><i data-lucide="rotate-cw" class="size-5" aria-hidden="true"></i>Retry</button></div><div class="mt-6 space-y-4"><div class="alert alert-error" role="alert">Wingspan could not be removed from Wishlist.</div><p class="font-display text-xl">Wingspan / 49,99 € / Stock Quantity: 12</p><div class="alert alert-error" role="alert">Wingspan could not be added to Shopping Basket.</div><div class="alert alert-warning" role="status"><span class="spinner" aria-hidden="true"></span> Checking Wishlist after a lost response…</div></div><!-- A rejected removal keeps the row; an uncertain response triggers a read, not a rollback claim. Never retry a Shopping Basket addition automatically. --></section>
+  <section class="mock-state"><h2>Edges / one Game, long name, large numbers, zero stock</h2><div class="flex flex-wrap justify-between gap-3"><h1 class="text-3xl">Wishlist</h1><p>1 Game</p></div><article class="mt-5 grid grid-cols-[5rem_minmax(0,1fr)] gap-4 border-y-2 border-dashed border-erased py-6" data-game="The Lord of the Rings: Journeys in Middle-earth - Spreading War"><img alt="The Lord of the Rings: Journeys in Middle-earth - Spreading War Game box" class="h-24 w-20 object-contain" data-image="lotr"><div class="min-w-0"><a href="#details" class="link inline-flex min-h-12 items-center break-words font-display text-xl">The Lord of the Rings: Journeys in Middle-earth - Spreading War</a><p class="mt-2 text-2xl">89,99 €</p><p>Stock Quantity: 12.345</p></div><div class="col-span-2 flex flex-wrap gap-3"><button class="btn btn-primary" data-add><i data-lucide="shopping-basket" class="size-5" aria-hidden="true"></i>Add to Shopping Basket</button><button class="btn w-12 px-0" data-remove title="Remove from Wishlist" aria-label="Remove The Lord of the Rings: Journeys in Middle-earth - Spreading War from Wishlist"><i data-lucide="trash-2" class="size-5" aria-hidden="true"></i></button></div></article><p class="mt-5 text-2xl">War of the Ring: Second Edition - Anniversary Release / 1.199,99 €</p><!-- Zero balance is not a Wishlist concept: demonstrate zero Stock Quantity above and an empty Shopping Basket count. No combined total, quantity selector, discount, pagination cap or reservation. --></section>
+  <section class="mock-state" id="catalogue"><h2>Catalogue and Game details / shared saved state</h2><div class="grid gap-6 md:grid-cols-2"><article class="card" data-game="Catan"><figure class="flex h-44 justify-center p-4"><img alt="Catan Game box" class="h-full w-full object-contain" data-image="catan"></figure><div class="card-body"><h3 class="card-title">Catan</h3><p>44,99 € / Stock Quantity: 20</p><div class="card-actions"><button class="btn" data-save aria-pressed="false"><i data-lucide="heart" class="size-5" aria-hidden="true"></i><span>Save to Wishlist</span></button><a href="#details" class="btn btn-ghost">Game details</a></div></div></article><article id="details" class="border-y-2 border-dashed border-pencil py-5" data-game="Wingspan"><h3 class="text-2xl">Wingspan</h3><img alt="Wingspan Game box" class="my-4 h-32 w-full object-contain" data-image="wingspan"><p>49,99 € / Stock Quantity: 12</p><button class="btn mt-4" data-save aria-pressed="true"><i data-lucide="heart-minus" class="size-5" aria-hidden="true"></i><span>Remove from Wishlist</span></button></article></div><!-- These are entry-point excerpts, not a redesign of the existing screens. All occurrences of a Game share saved state in the implementation. --></section>
+</main>
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script>
+const games = {
+  wingspan: { name: 'Wingspan', price: '49,99 €', stock: 12, image: 'https://upload.wikimedia.org/wikipedia/en/c/c3/3d-wingspan-768x752.png' },
+  brass: { name: 'Brass: Birmingham', price: '74,99 €', stock: 0, image: 'https://cdn.shopify.com/s/files/1/0246/2190/8043/products/top-section-product-image-alt.png?v=1581282813' },
+  spirit: { name: 'Spirit Island', price: '79,99 USD', stock: 8, image: 'https://upload.wikimedia.org/wikipedia/commons/d/d6/Game_in_progress%2C_Spirit_Island.jpg' },
+  catan: { name: 'Catan', price: '44,99 €', stock: 20, image: 'https://upload.wikimedia.org/wikipedia/en/a/a3/Catan-2015-boxart.jpg' },
+  lotr: { name: 'The Lord of the Rings: Journeys in Middle-earth base Game box; expansion Image unavailable', image: 'https://cdn.svc.asmodee.net/production-fantasyflightgames/uploads/image-converter/2026/09/FFG_JME01_Product-Image.webp' }
+};
+document.querySelectorAll('[data-image]').forEach(image => {
+  const game = games[image.dataset.image];
+  image.src = game.image;
+  image.alt = image.dataset.image === 'spirit' ? 'Spirit Island Game in progress' : game.name + (image.dataset.image === 'lotr' ? '' : ' Game box');
+  image.addEventListener('error', () => {
+    image.removeAttribute('src');
+    image.alt = 'Image unavailable: ' + game.name;
+  }, { once: true });
+});
+document.querySelectorAll('[data-lucide="heart-minus"]').forEach(icon => { icon.dataset.lucide = 'heart'; });
+lucide.createIcons();
+const saved = new Set(['Wingspan', 'Brass: Birmingham', 'Spirit Island']);
+let basketCount = 0;
+const list = document.querySelector('[data-games]');
+const rowTemplate = list.querySelector('article').cloneNode(true);
+const panel = document.querySelector('#selected-game');
+const inspector = document.querySelector('[data-inspector]');
+const mobile = matchMedia('(max-width: 767px)');
+let selection = document.querySelector('[data-select][aria-expanded="true"]');
+function placePanel() {
+  if (!panel || !selection) return;
+  if (mobile.matches) selection.closest('article').after(panel);
+  else inspector.append(panel);
+}
+function selectGame(button) {
+  selection = button;
+  const game = games[button.dataset.select];
+  document.querySelectorAll('[data-select]').forEach(candidate => {
+    const active = candidate === button;
+    candidate.setAttribute('aria-expanded', String(active));
+    candidate.classList.toggle('bg-postit', active);
+    candidate.classList.toggle('border-ballpoint', active);
+    candidate.classList.toggle('bg-paper', !active);
+    candidate.classList.toggle('border-pencil', !active);
+  });
+  panel.dataset.game = game.name;
+  panel.querySelector('[data-selected-name]').textContent = game.name;
+  panel.querySelector('[data-selected-price]').textContent = game.price;
+  const stock = panel.querySelector('[data-selected-stock]');
+  stock.textContent = game.stock ? 'Stock Quantity: ' + game.stock : 'Out of stock / Stock Quantity: 0';
+  stock.classList.toggle('text-marker', !game.stock);
+  const image = panel.querySelector('[data-selected-image]');
+  image.src = game.image;
+  image.alt = game.name + (button.dataset.select === 'spirit' ? ' Game in progress' : ' Game box');
+  const add = panel.querySelector('[data-add]');
+  add.disabled = !game.stock;
+  const remove = panel.querySelector('[data-remove]');
+  remove.setAttribute('aria-label', 'Remove ' + game.name + ' from Wishlist');
+  placePanel();
+}
+function updateSavedControls() {
+  document.querySelectorAll('[data-save]').forEach(button => {
+    const active = saved.has(button.closest('[data-game]').dataset.game);
+    button.setAttribute('aria-pressed', String(active));
+    button.querySelector('span').textContent = active ? 'Remove from Wishlist' : 'Save to Wishlist';
+  });
+  document.querySelectorAll('[data-count]').forEach(count => { count.textContent = saved.size; });
+  const summary = document.querySelector('#wishlist').querySelector('p');
+  if (summary) summary.textContent = saved.size + (saved.size === 1 ? ' Game' : ' Games') + ' / newest saves first';
+}
+function removeSavedRow(name) {
+  [...list.querySelectorAll('article[data-game]')].filter(row => row !== panel && row.dataset.game === name).forEach(row => row.remove());
+  if (panel && panel.dataset.game === name) {
+    const next = list.querySelector('[data-select]');
+    if (next) selectGame(next);
+    else panel.remove();
+  }
+  if (!list.querySelector('article[data-game]')) {
+    list.textContent = 'Your Wishlist is empty';
+    if (panel) panel.remove();
+  }
+}
+function addSavedRow(name) {
+  const key = Object.keys(games).find(candidate => games[candidate].name === name);
+  const game = games[key];
+  const row = rowTemplate.cloneNode(true);
+  row.dataset.game = name;
+  const image = row.querySelector('img');
+  image.src = game.image;
+  image.alt = name + ' Game box';
+  row.querySelectorAll('a.link').forEach(link => { link.textContent = name; });
+  const paragraphs = row.querySelectorAll('p');
+  if (paragraphs.length) {
+    paragraphs[0].textContent = game.price;
+    paragraphs[1].textContent = 'Stock Quantity: ' + game.stock;
+  }
+  const select = row.querySelector('[data-select]');
+  if (select) {
+    select.dataset.select = key;
+    const labels = select.querySelectorAll('span span');
+    labels[0].textContent = name;
+    labels[1].textContent = game.price + ' / Stock Quantity: ' + game.stock;
+  }
+  const add = row.querySelector('[data-add]');
+  if (add) add.setAttribute('aria-label', 'Add ' + name + ' to Shopping Basket');
+  const remove = row.querySelector('[data-remove]');
+  if (remove) remove.setAttribute('aria-label', 'Remove ' + name + ' from Wishlist');
+  if (!list.querySelector('article[data-game]')) list.textContent = '';
+  list.prepend(row);
+  if (panel) {
+    if (!panel.isConnected) inspector.append(panel);
+    selectGame(select);
+  }
+}
+document.addEventListener('click', event => {
+  const button = event.target.closest('button');
+  if (!button || button.disabled) return;
+  if (button.hasAttribute('data-select')) selectGame(button);
+  if (button.hasAttribute('data-add')) {
+    basketCount += 1;
+    document.querySelectorAll('[data-basket]').forEach(count => { count.textContent = basketCount; });
+    const notice = document.querySelector('[data-basket-feedback]');
+    notice.textContent = button.closest('[data-game]').dataset.game + ' added to Shopping Basket.';
+    notice.classList.remove('hidden');
+  }
+  if (button.hasAttribute('data-remove')) {
+    const article = button.closest('[data-game]');
+    const name = article.dataset.game;
+    saved.delete(name);
+    removeSavedRow(name);
+    if (article !== panel) article.remove();
+    document.querySelector('[data-feedback]').textContent = name + ' removed from Wishlist.';
+    updateSavedControls();
+  }
+  if (button.hasAttribute('data-save')) {
+    const name = button.closest('[data-game]').dataset.game;
+    if (saved.has(name)) {
+      saved.delete(name);
+      removeSavedRow(name);
+    } else {
+      saved.add(name);
+      addSavedRow(name);
+    }
+    updateSavedControls();
+  }
+  if (button.hasAttribute('data-retry')) {
+    button.closest('[role="alert"]').innerHTML = '<p role="status"><span class="spinner" aria-hidden="true"></span> Loading Wishlist…</p>';
+  }
+});
+mobile.addEventListener('change', placePanel);
+placePanel();
+</script>
+</body>
+</html>
